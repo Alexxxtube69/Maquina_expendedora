@@ -1,3 +1,4 @@
+import daos.DAOFactory;
 import daos.ProducteDAO;
 import daos.ProducteDAO_MySQL;
 import model.Producte;
@@ -11,9 +12,11 @@ public class Application {
     //Passar al DAO -->     //TODO: llegir les propietats de la BD d'un fitxer de configuració (Properties)
     //En general -->        //TODO: Afegir un sistema de Logging per les classes.
 
-    private static ProducteDAO producteDAO = new ProducteDAO_MySQL();            //TODO: passar a una classe DAOFactory
+    private static DAOFactory df = DAOFactory.getInstance();
+    private static ProducteDAO producteDAO = df.getProducteDAO();            //TODO: passar a una classe DAOFactory(acabar el DAOFactory)
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws SQLException {
 
         Scanner lector = new Scanner(System.in);            //TODO: passar Scanner a una classe InputHelper
         int opcio = 0;
@@ -50,6 +53,9 @@ public class Application {
          *      - modificar stock d'un producte que hi ha a la màquina
          *      - afegir més ranures a la màquina
          */
+
+
+
     }
 
     private static void afegirProductes() {
@@ -116,9 +122,11 @@ public class Application {
          * (stock de la màquina es manté guardat entre reinicis del programa)
          */
 
+
+
     }
 
-    private static void mostrarMaquina() {
+    private static void mostrarMaquina() throws SQLException {
 
         /** IMPORTANT **
          * S'està demanat NOM DEL PRODUCTE no el codiProducte (la taula Slot conté posició, codiProducte i stock)
@@ -131,6 +139,12 @@ public class Application {
          * 3            Coca-Cola Zero          10
          * 4            Aigua 0.5L              7
          */
+
+        ArrayList<Producte> llistaProducte = producteDAO.readProductes();
+        for (Producte producte: llistaProducte){
+            System.out.println(producte);
+        }
+
     }
 
     private static void mostrarMenu() {
