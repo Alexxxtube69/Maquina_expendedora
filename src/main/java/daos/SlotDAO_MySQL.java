@@ -21,7 +21,7 @@ public class SlotDAO_MySQL implements SlotDAO {
         try {
             Class.forName(DB_DRIVER);
             conn = DriverManager.getConnection(DB_ROUTE, DB_USER, DB_PWD);
-            System.out.println("Conexió establerta satisfactoriament");
+            System.out.println("Conexió a slots correcta");
         } catch (Exception e) {
             System.out.println("S'ha produit un error en intentar connectar amb la base de dades. Revisa els paràmetres");
             System.out.println(e);
@@ -81,12 +81,12 @@ public class SlotDAO_MySQL implements SlotDAO {
 
     @Override
     public void updateSlot(Slot s) throws SQLException {
-        PreparedStatement ps = conn.prepareStatement("UPDATE slot posicio = ?, quantitat = ? WHERE codi_producte = ?");
+        PreparedStatement ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ? WHERE codi_producte = ?");
 
-        ps.setString(3, s.getCodi_producte());
 
         ps.setInt(1, s.getPosicio());
         ps.setInt(2, s.getQuantitat());
+        ps.setString(3, s.getCodi_producte());
 
         ps.executeUpdate();
     }
@@ -119,4 +119,6 @@ public class SlotDAO_MySQL implements SlotDAO {
 
         ps.execute();
     }
+
+
 }

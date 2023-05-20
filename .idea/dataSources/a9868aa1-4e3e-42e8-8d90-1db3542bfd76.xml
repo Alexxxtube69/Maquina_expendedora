@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="expenedora">
   <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.48">
-    <root id="1"/>
+    <root id="1">
+      <DefaultEngine>InnoDB</DefaultEngine>
+      <DefaultTmpEngine>InnoDB</DefaultTmpEngine>
+      <ServerVersion>8.0.33</ServerVersion>
+    </root>
     <collation id="2" parent="1" name="armscii8_bin">
       <Charset>armscii8</Charset>
     </collation>
@@ -917,7 +921,7 @@
       <DasType>varchar(45)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="290" parent="285" name="preu_copmra">
+    <column id="290" parent="285" name="preu_compra">
       <DasType>float|0s</DasType>
       <Position>4</Position>
     </column>
@@ -925,38 +929,48 @@
       <DasType>float|0s</DasType>
       <Position>5</Position>
     </column>
-    <key id="292" parent="285" name="PRIMARY">
+    <index id="292" parent="285" name="PRIMARY">
+      <ColNames>codi_producte</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="293" parent="285" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
-      <UnderlyingIndexColNames>codi_producte</UnderlyingIndexColNames>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="293" parent="286" name="posicio">
+    <column id="294" parent="286" name="posicio">
       <DasType>int|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="294" parent="286" name="quantitat">
+    <column id="295" parent="286" name="quantitat">
       <DasType>int|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="295" parent="286" name="codi_producte">
+    <column id="296" parent="286" name="codi_producte">
       <DasType>varchar(10)|0s</DasType>
       <Position>3</Position>
     </column>
-    <foreign-key id="296" parent="286" name="codi_producte">
+    <foreign-key id="297" parent="286" name="codi_producte">
       <ColNames>codi_producte</ColNames>
       <OnUpdate>set-null</OnUpdate>
       <RefColNames>codi_producte</RefColNames>
       <RefTableName>producte</RefTableName>
     </foreign-key>
-    <index id="297" parent="286" name="codi_producte_idx">
+    <index id="298" parent="286" name="PRIMARY">
+      <ColNames>posicio</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="299" parent="286" name="codi_producte_idx">
       <ColNames>codi_producte</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="298" parent="286" name="PRIMARY">
+    <key id="300" parent="286" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
-      <UnderlyingIndexColNames>posicio</UnderlyingIndexColNames>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
   </database-model>
 </dataSource>

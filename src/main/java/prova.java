@@ -13,9 +13,8 @@ public class prova {
     private static SlotDAO slotDAO = df.getSlotDao();
 
     public static void main(String[] args) throws SQLException {
-        for (Slot slot: slotDAO.readSlots()){
-            System.out.println(slot);
-        }
+        Producte p = InputHelper.crearProducte();
+        System.out.println(p);
     }
 
 }

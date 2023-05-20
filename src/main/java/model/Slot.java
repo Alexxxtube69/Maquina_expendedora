@@ -12,4 +12,8 @@ public class Slot {
     private int quantitat;
     private String codi_producte;
 
+    public void vendre(){
+        this.quantitat = this.quantitat-1;
+    }
+
 }

@@ -1,6 +1,5 @@
 package daos;
 
-import com.sun.tools.jconsole.JConsoleContext;
 import model.Producte;
 
 import java.sql.*;
@@ -21,7 +20,7 @@ public class ProducteDAO_MySQL implements ProducteDAO {
         try {
             Class.forName(DB_DRIVER);
             conn = DriverManager.getConnection(DB_ROUTE, DB_USER, DB_PWD);
-            System.out.println("Conexió establerta satisfactoriament");
+            System.out.println("Conexió a productes correcte");
         } catch (Exception e) {
             System.out.println("S'ha produit un error en intentar connectar amb la base de dades. Revisa els paràmetres");
             System.out.println(e);

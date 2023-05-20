@@ -1,9 +1,14 @@
 import daos.DAOFactory;
 import daos.ProducteDAO;
-import daos.ProducteDAO_MySQL;
+import daos.SlotDAO;
+import lombok.ToString;
 import model.Producte;
+import model.Slot;
 
+import javax.sound.sampled.Port;
+import java.io.*;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,13 +18,15 @@ public class Application {
     //En general -->        //TODO: Afegir un sistema de Logging per les classes.
 
     private static DAOFactory df = DAOFactory.getInstance();
-    private static ProducteDAO producteDAO = df.getProducteDAO();            //TODO: passar a una classe DAOFactory(acabar el DAOFactory)
+    private static ProducteDAO producteDAO = df.getProducteDAO();       //TODO: passar a una classe DAOFactory(acabar el DAOFactory)
 
+    private static SlotDAO slotDao = df.getSlotDao();            //TODO: passar a una classe DAOFactory(acabar el DAOFactory)
 
     public static void main(String[] args) throws SQLException {
 
         Scanner lector = new Scanner(System.in);            //TODO: passar Scanner a una classe InputHelper
         int opcio = 0;
+        comprarProducte();
 
         do
         {
@@ -45,7 +52,7 @@ public class Application {
     }
 
 
-    private static void modificarMaquina() {
+    private static void modificarMaquina() throws SQLException {
 
         /**
          * Ha de permetre:
@@ -54,7 +61,34 @@ public class Application {
          *      - afegir més ranures a la màquina
          */
 
+        System.out.println("Indica que vos fer");
+        System.out.println("1-Modificar posicions");
+        System.out.println("2-Modificar stock");
+        System.out.println("3-Afeguir ranures");
+        System.out.println("0-Sortir");
 
+        switch (InputHelper.seleccionarOpcio()){
+            case "1":
+                int posicio = InputHelper.posicioSlot();
+                int quantitat = InputHelper.quantitatSlot();
+                String codiProducte = InputHelper.producteId();
+
+                slotDao.updateSlot(new Slot(posicio, quantitat, codiProducte));
+                break;
+            case "2":
+                quantitat = InputHelper.quantitatSlot();
+                codiProducte = InputHelper.producteId();
+
+                for (Slot s: slotDao.readSlots()){
+                    if (s.getCodi_producte().equals(codiProducte)){
+
+                    }
+                }
+
+                slotDao.updateSlot(new Slot());
+                break;
+
+        }
 
     }
 
@@ -74,15 +108,14 @@ public class Application {
 
         //Exemple de insersió SENSE ENTRADA DE DADES NI COMPROVACIÓ REPETITS
 
-        Producte p = new Producte("pomaP", "Pink Lady", "Poma Pink Lady envasada",
-                0.2f, 1.0f);
+        Producte p = InputHelper.crearProducte();
 
         try {
 
             //Demanem de guardar el producte p a la BD
             producteDAO.createProducte(p);
 
-            //Agafem tots els productes de la BD i els mostrem (per compvoar que s'ha afegit)
+            //Agafem tots els productes de la BD i els mostrem (per comprobar que s'ha afegit)
             ArrayList<Producte> productes = producteDAO.readProductes();
             for (Producte prod: productes)
             {
@@ -111,7 +144,7 @@ public class Application {
         }
     }
 
-    private static void comprarProducte() {
+    private static void comprarProducte() throws SQLException {
 
         /**
          * Mínim: es realitza la compra indicant la posició on es troba el producte que es vol comprar
@@ -122,8 +155,69 @@ public class Application {
          * (stock de la màquina es manté guardat entre reinicis del programa)
          */
 
+        mostrarMaquina();
+        System.out.println("Vos comprar per nom o per posicio? ");
+        String opcio = InputHelper.seleccionarOpcio();
 
+        switch (opcio){
+            case "Nom":
+            case "nom":
+                String nomProducte = InputHelper.comprarProducteNom();
 
+                for (Producte p: producteDAO.readProductes()){
+                    if (p.getNom().equals(nomProducte)){
+                        for (Slot s: slotDao.readSlots()){
+                            if (s.getCodi_producte().equals(p.getCodiProducte())){
+                                if (s.getQuantitat() > 0) {
+                                    s.vendre();
+                                    actualitzarBenefici(s.getCodi_producte());
+                                    slotDao.updateSlot(s);
+                                    return;
+                                } else System.out.println("No hi ha stock");
+                            }
+                        }
+                    } else System.out.println("No existeix el producte");
+                }
+
+                break;
+            case "Posicio":
+            case "posicio":
+                int posicio = InputHelper.comprarProductePosicio();
+                for (Slot s: slotDao.readSlots()){
+                    if (s.getPosicio() == posicio){
+                        if (s.getQuantitat() > 0){
+                            s.vendre();
+                            actualitzarBenefici(s.getCodi_producte());
+                            slotDao.updateSlot(s);
+                            return;
+                        }else System.out.println("No hi ha stock");
+                    }else System.out.println("No existeix la posicio");
+                }
+                break;
+            default:
+                System.out.println("Opcio no valida");
+                comprarProducte();
+        }
+
+    }
+
+    private static void actualitzarBenefici(String codiProducte){
+        File benefici = new File("src/main/java/benefici");
+
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter(benefici))){
+            for (Producte p: producteDAO.readProductes()){
+                if (p.getCodiProducte().equals(codiProducte)) {
+                    System.out.println("Escritura exitosa");
+                    String preuVenta = String.valueOf(p.getPreuVenta());
+                    printWriter.append(preuVenta);
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void mostrarMaquina() throws SQLException {
@@ -138,12 +232,19 @@ public class Application {
          * 2            Doritos Tex Mex         6
          * 3            Coca-Cola Zero          10
          * 4            Aigua 0.5L              7
+         * ===========================================================
          */
 
-        ArrayList<Producte> llistaProducte = producteDAO.readProductes();
-        for (Producte producte: llistaProducte){
-            System.out.println(producte);
+        ArrayList<Slot> llistaSlots = slotDao.readSlots();
+        System.out.println("Posicio         Producte         Quantitat disponible");
+        System.out.println("===========================================================");
+        for (Slot s: llistaSlots){
+            System.out.print(s.getPosicio() + " / ");
+            System.out.print(s.getCodi_producte() + " / ");
+            System.out.print(s.getQuantitat() + " ");
+            System.out.print("\n");
         }
+        System.out.println("===========================================================");
 
     }
 
@@ -184,5 +285,7 @@ public class Application {
          * S'ha de crear una nova taula a la BD on es vagi realitzant un registre de les vendes o els beneficis al
          * llarg de la vida de la màquina.
          */
+
+
     }
 }
