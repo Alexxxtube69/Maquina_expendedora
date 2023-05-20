@@ -8,6 +8,7 @@ import model.Slot;
 import javax.sound.sampled.Port;
 import java.io.*;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -26,7 +27,7 @@ public class Application {
 
         Scanner lector = new Scanner(System.in);            //TODO: passar Scanner a una classe InputHelper
         int opcio = 0;
-        comprarProducte();
+        modificarMaquina();
 
         do
         {
@@ -70,22 +71,51 @@ public class Application {
         switch (InputHelper.seleccionarOpcio()){
             case "1":
                 int posicio = InputHelper.posicioSlot();
-                int quantitat = InputHelper.quantitatSlot();
                 String codiProducte = InputHelper.producteId();
-
-                slotDao.updateSlot(new Slot(posicio, quantitat, codiProducte));
-                break;
-            case "2":
-                quantitat = InputHelper.quantitatSlot();
-                codiProducte = InputHelper.producteId();
-
-                for (Slot s: slotDao.readSlots()){
-                    if (s.getCodi_producte().equals(codiProducte)){
-
+                try {
+                    for (Slot s: slotDao.readSlots()){
+                        if (s.getCodi_producte().equals(codiProducte)){
+                            s.setPosicio(posicio);
+                            slotDao.updateSlot(s);
+                        }
                     }
+                }catch (SQLIntegrityConstraintViolationException  e){
+                    System.err.println("No existeix el producte/slot");
+                }catch (Exception e){
+                    System.err.println(e);
                 }
 
-                slotDao.updateSlot(new Slot());
+                break;
+            case "2":
+                int quantitat = InputHelper.quantitatSlot();
+                posicio = InputHelper.posicioSlot();
+
+                try {
+                    for (Slot s: slotDao.readSlots()){
+                        if (s.getPosicio() == posicio){
+                            s.setQuantitat(quantitat);
+                            slotDao.updateSlot(s);
+                        }
+                    }
+                }catch (SQLIntegrityConstraintViolationException  e){
+                    System.err.println("No existeix el producte/slot");
+                }catch (Exception e){
+                    System.err.println(e);
+                }
+
+
+                break;
+            case "3":
+                codiProducte = InputHelper.producteId();
+                quantitat = InputHelper.quantitatSlot();
+
+                try {
+                    posicio = slotDao.readSlots().size() + 1;
+                    slotDao.createSlot(new Slot(posicio, quantitat, codiProducte));
+                }catch (Exception e){
+                    System.out.println(e);
+                }
+
                 break;
 
         }

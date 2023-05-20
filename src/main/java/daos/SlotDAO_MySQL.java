@@ -81,8 +81,7 @@ public class SlotDAO_MySQL implements SlotDAO {
 
     @Override
     public void updateSlot(Slot s) throws SQLException {
-        PreparedStatement ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ? WHERE codi_producte = ?");
-
+        PreparedStatement ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ?, codi_producte = ?");
 
         ps.setInt(1, s.getPosicio());
         ps.setInt(2, s.getQuantitat());
