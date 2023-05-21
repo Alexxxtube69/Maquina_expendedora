@@ -1,18 +1,15 @@
 import daos.DAOFactory;
 import daos.ProducteDAO;
 import daos.SlotDAO;
-import lombok.ToString;
 import model.Producte;
 import model.Slot;
-
-import javax.sound.sampled.Port;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Application {
@@ -75,14 +72,16 @@ public class Application {
                 String codiProducte = InputHelper.producteId();
                 try {
                     for (Slot s: slotDao.readSlots()){
-                        if (s.getCodi_producte().equals(codiProducte)){
-                            s.setPosicio(posicio);
+                        if (s.getPosicio() == posicio){
+                            s.setCodi_producte(codiProducte);
                             slotDao.updateSlot(s);
                         }
                     }
-                }catch (SQLIntegrityConstraintViolationException  e){
-                    System.err.println("No existeix el producte/slot");
-                }catch (Exception e){
+                } catch (SQLIntegrityConstraintViolationException e){
+                    System.out.println("No existeix el  producte/slot");
+                } catch (InputMismatchException e){
+                    System.err.println("Valor entrat erroniament");
+                } catch (Exception  e){
                     System.err.println(e);
                 }
 
@@ -113,7 +112,9 @@ public class Application {
                 try {
                     posicio = slotDao.readSlots().size() + 1;
                     slotDao.createSlot(new Slot(posicio, quantitat, codiProducte));
-                }catch (Exception e){
+                } catch (SQLIntegrityConstraintViolationException e){
+                    System.err.println("No existeix el producte");
+                } catch (Exception e){
                     System.out.println(e);
                 }
 

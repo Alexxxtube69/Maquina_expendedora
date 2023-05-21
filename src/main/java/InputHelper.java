@@ -50,7 +50,13 @@ public class InputHelper {
     public static int posicioSlot() {
         Scanner input = new Scanner(System.in);
         System.out.println("Indica la posicio: ");
-        return input.nextInt();
+        try {
+            return input.nextInt();
+        }catch (InputMismatchException e){
+            System.err.println("S'ha d'entrar un digit");
+            return 0;
+        }
+
     }
 
     public static int quantitatSlot() {
