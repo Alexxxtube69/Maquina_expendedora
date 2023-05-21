@@ -4,7 +4,10 @@ import daos.SlotDAO;
 import model.Producte;
 import model.Slot;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class prova {
 
@@ -13,8 +16,16 @@ public class prova {
     private static SlotDAO slotDAO = df.getSlotDao();
 
     public static void main(String[] args) throws SQLException {
-        Producte p = InputHelper.crearProducte();
-        System.out.println(p);
+        Path path = Paths.get("src/main/java/daos/Properties.txt");
+
+        try (Scanner lector = new Scanner(path)) {
+            while (lector.hasNextLine()) {
+                String linia = lector.nextLine();
+                System.out.println(linia);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
 }

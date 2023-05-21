@@ -7,6 +7,8 @@ import model.Slot;
 
 import javax.sound.sampled.Port;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLOutput;
@@ -27,7 +29,6 @@ public class Application {
 
         Scanner lector = new Scanner(System.in);            //TODO: passar Scanner a una classe InputHelper
         int opcio = 0;
-        modificarMaquina();
 
         do
         {
@@ -195,7 +196,7 @@ public class Application {
                 String nomProducte = InputHelper.comprarProducteNom();
 
                 for (Producte p: producteDAO.readProductes()){
-                    if (p.getNom().equals(nomProducte)){
+                    if (p.getCodiProducte().equals(nomProducte)){
                         for (Slot s: slotDao.readSlots()){
                             if (s.getCodi_producte().equals(p.getCodiProducte())){
                                 if (s.getQuantitat() > 0) {
@@ -206,8 +207,9 @@ public class Application {
                                 } else System.out.println("No hi ha stock");
                             }
                         }
-                    } else System.out.println("No existeix el producte");
+                    }
                 }
+                System.out.println("No existeix el producte");
 
                 break;
             case "Posicio":
@@ -221,8 +223,9 @@ public class Application {
                             slotDao.updateSlot(s);
                             return;
                         }else System.out.println("No hi ha stock");
-                    }else System.out.println("No existeix la posicio");
+                    }
                 }
+                System.out.println("No existeix la posicio");
                 break;
             default:
                 System.out.println("Opcio no valida");
@@ -231,15 +234,15 @@ public class Application {
 
     }
 
-    private static void actualitzarBenefici(String codiProducte){
+    private static void actualitzarBenefici(String codiProducte) {
         File benefici = new File("src/main/java/benefici");
 
-        try (PrintWriter printWriter = new PrintWriter(new FileWriter(benefici))){
-            for (Producte p: producteDAO.readProductes()){
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter(benefici, true))) {
+            for (Producte p : producteDAO.readProductes()) {
                 if (p.getCodiProducte().equals(codiProducte)) {
                     System.out.println("Escritura exitosa");
                     String preuVenta = String.valueOf(p.getPreuVenta());
-                    printWriter.append(preuVenta);
+                    printWriter.append(preuVenta + "\n");
                     return;
                 }
             }
@@ -249,6 +252,7 @@ public class Application {
             throw new RuntimeException(e);
         }
     }
+
 
     private static void mostrarMaquina() throws SQLException {
 
@@ -316,6 +320,19 @@ public class Application {
          * llarg de la vida de la màquina.
          */
 
+        Path path = Paths.get("src/main/java/benefici");
 
+        float sumaBenefici = 0;
+
+        try (Scanner lector = new Scanner(path)) {
+            while (lector.hasNextLine()) {
+                sumaBenefici += Double.parseDouble(lector.nextLine());
+            }
+            System.out.println("El benefici total de la maquina desde que es va instal·lar es: ");
+            System.out.println(sumaBenefici);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
+
 }

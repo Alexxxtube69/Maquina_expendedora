@@ -3,16 +3,19 @@ package daos;
 import model.Producte;
 import model.Slot;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class SlotDAO_MySQL implements SlotDAO {
 
     //Dades de connexió a la base de dades
-    private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_ROUTE = "jdbc:mysql://localhost:3306/expenedora";
-    private static final String DB_USER = "root";
-    private static final String DB_PWD = "1324";
+    private static final String DB_DRIVER = dadesMaquina().get(0);
+    private static final String DB_ROUTE = dadesMaquina().get(1);
+    private static final String DB_USER = dadesMaquina().get(2);
+    private static final String DB_PWD = dadesMaquina().get(3);
 
     private Connection conn = null;
 
@@ -81,7 +84,7 @@ public class SlotDAO_MySQL implements SlotDAO {
 
     @Override
     public void updateSlot(Slot s) throws SQLException {
-        PreparedStatement ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ?, codi_producte = ?");
+        PreparedStatement ps = conn.prepareStatement("UPDATE slot SET posicio = ?, quantitat = ? where codi_producte = ?");
 
         ps.setInt(1, s.getPosicio());
         ps.setInt(2, s.getQuantitat());
@@ -119,5 +122,21 @@ public class SlotDAO_MySQL implements SlotDAO {
         ps.execute();
     }
 
+    public static ArrayList<String> dadesMaquina(){
+        ArrayList<String> dadesBdD = new ArrayList<>();
+
+        Path path = Paths.get("src/main/java/daos/Properties.txt");
+
+        try (Scanner lector = new Scanner(path)) {
+            while (lector.hasNextLine()) {
+                String linia = lector.nextLine();
+                dadesBdD.add(linia);
+            }
+            return dadesBdD;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
 
 }
